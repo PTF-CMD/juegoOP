@@ -1,0 +1,164 @@
+<!doctype html> 
+<html lang="es"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>El juego de Organización de Paseadores</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+    game.load.image('cielo', 'assets/cielo.png');
+    game.load.image('suelo', 'assets/platform.png');
+    game.load.image('logo', 'assets/logo.png');
+    game.load.spritesheet('perrito', 'assets/perrito.png', 32, 48);
+
+}
+
+var player;
+var platforms;
+var cursors;
+
+var logos;
+var score = 0;
+var scoreText;
+
+function create() {
+
+    //  Usamos physics para la física del juego
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //  El fondo de pantalla
+    game.add.sprite(0, 0, 'cielo');
+
+    //  El grupo platforms contiene al suelo y a las do plataformas sobre las que salta nuestro protagonistas
+    platforms = game.add.group();
+
+    //  Le damos cuerpo
+    platforms.enableBody = true;
+
+    // Generamos el suelo.
+    var suelo = platforms.create(0, game.world.height - 64, 'suelo');
+
+    //  Escalamos para rellenar el ancho(la imagen original es de 400x32)
+    suelo.scale.setTo(2, 2);
+
+    //  Evitamos la caida de la superficie
+    suelo.body.immovable = true;
+
+    //  Creamos las plataformas
+    var ledge = platforms.create(400, 450, 'suelo');
+    ledge.body.immovable = true;
+
+    ledge = platforms.create(-100, 375, 'suelo');
+    ledge.body.immovable = true;
+    
+    // La creación del perrito
+    player = game.add.sprite(32, game.world.height - 150, 'perrito');
+
+    //  La fisica del perrito
+    game.physics.arcade.enable(player);
+
+    //  El rebote, la gravedad y los límites.
+    player.body.bounce.y = 0.10;
+    player.body.gravity.y = 600;
+    player.body.collideWorldBounds = true;
+
+    //  Nuestras animaciones caminando a la derecha y a la izquierda.
+    player.animations.add('left', [0, 1, 2, 3], 10, true);
+    player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+    //  Por ultimo los logos
+    logos = game.add.group();
+
+    //  Establecemos las fisica del grupo
+    logos.enableBody = true;
+
+    //  Crearemos 17 y eventualmente dispersarlos
+    for (var i = 0; i < 12; i++)
+    {
+        //  Creamos un logo adentro de grupo logos
+        var logo = logos.create(i * 70, 0, 'logo');
+
+        //  Le asiganamos la gravedad
+        logo.body.gravity.y = 300;
+
+        //  This just gives each logo a slightly random bounce value
+        logo.body.bounce.y = 0.7 + Math.random() * 0.2;
+    }
+
+    //  The score
+    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+
+    //  Our controls.
+    cursors = game.input.keyboard.createCursorKeys();
+    
+}
+
+function update() {
+
+    //  Collide the player and the logos with the platforms
+    game.physics.arcade.collide(player, platforms);
+    game.physics.arcade.collide(logos, platforms);
+
+    //  Checks to see if the player overlaps with any of the logos, if he does call the collectlogo function
+    game.physics.arcade.overlap(player, logos, collectlogo, null, this);
+
+    //  Reset the players velocity (movement)
+    player.body.velocity.x = 0;
+
+    if (cursors.left.isDown)
+    {
+        //  Move to the left
+        player.body.velocity.x = -150;
+
+        player.animations.play('left');
+    }
+    else if (cursors.right.isDown)
+    {
+        //  Move to the right
+        player.body.velocity.x = 150;
+
+        player.animations.play('right');
+    }
+    else
+    {
+        //  Stand still
+        player.animations.stop();
+
+        player.frame = 4;
+    }
+    
+    //  Allow the player to jump if they are touching the suelo.
+    if (cursors.up.isDown && player.body.touching.down)
+    {
+        player.body.velocity.y = -350;
+    }
+
+}
+
+function collectlogo (player, logo) {
+    
+    // Removes the logo from the screen
+    logo.kill();
+
+    //  Add and update the score
+    score += 10;
+    scoreText.text = 'Score: ' + score;
+
+}
+
+</script>
+
+</body>
+</html>
