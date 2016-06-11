@@ -93,40 +93,40 @@ function create() {
         //  Le asiganamos la gravedad
         logo.body.gravity.y = 300;
 
-        //  This just gives each logo a slightly random bounce value
+        // Esto genera un valor levemente aleatorio para rl rebote de cada logo
         logo.body.bounce.y = 0.7 + Math.random() * 0.2;
     }
 
-    //  The score
+    //  El puntaje
     scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 
-    //  Our controls.
+    //  Nuestros controles.
     cursors = game.input.keyboard.createCursorKeys();
     
 }
 
 function update() {
 
-    //  Collide the player and the logos with the platforms
+    //  Interacción del personaje y los logos con las plataformas
     game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(logos, platforms);
 
-    //  Checks to see if the player overlaps with any of the logos, if he does call the collectlogo function
+    //  Verfifcar si  el personaje coincide  con alguno de los logos. Si es así se llama a la función collectlogo
     game.physics.arcade.overlap(player, logos, collectlogo, null, this);
 
-    //  Reset the players velocity (movement)
+    //  Setear la velocidad del personaje
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown)
     {
-        //  Move to the left
+        //  Moverse a la izquierda
         player.body.velocity.x = -150;
 
         player.animations.play('left');
     }
     else if (cursors.right.isDown)
     {
-        //  Move to the right
+        //  Moverse a la derecha
         player.body.velocity.x = 150;
 
         player.animations.play('right');
@@ -139,7 +139,7 @@ function update() {
         player.frame = 4;
     }
     
-    //  Allow the player to jump if they are touching the suelo.
+    //  Permite al personaje saltar si está tocando el suelo.
     if (cursors.up.isDown && player.body.touching.down)
     {
         player.body.velocity.y = -350;
@@ -149,10 +149,10 @@ function update() {
 
 function collectlogo (player, logo) {
     
-    // Removes the logo from the screen
+    // Quita los logos de la pantalla
     logo.kill();
 
-    //  Add and update the score
+    //  suma y actualiza el puntaje
     score += 10;
     scoreText.text = 'Score: ' + score;
 
